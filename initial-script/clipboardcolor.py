@@ -11,6 +11,19 @@
 #       RGB:                    rgb(239, 104, 255)
 #       RGBA:                   rgba(239, 104, 255, 0.3)
 
+# To add support for a new color format, you must:
+#   1. add it to the Format enum
+#               example: HEXCODE = 1
+#   2. add it to the global formatsList (and come up with a regex pattern!)
+#               example: [Format.HEXCODE, "([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"]
+#   3. make a helper function that returns a ManagedColor with the color format as input
+#               example: def hexCodeToManagedColor(text) -> ManagedColor:
+#   4. edit the textToColor() if-else stack to have a case for the color format
+#               example: if FORMAT == Format.HEXCODE:
+#                   return hexCodeToManagedColor(text)
+#   5. add it to the list of supported color formats in the comment above and in README.md
+
+
 
 from PyQt5.QtGui import (
         QColor,
@@ -33,15 +46,11 @@ class Format(Enum):
     RGB = 3
     RGBA = 4
 
-    HSL = 7
-    HSV = 8
-
 formatsList = [
     [Format.HEXCODE, "([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"],
     [Format.HEXCODE_ALPHA, "([A-Fa-f0-9]{8})$"],
     [Format.RGB, "rgb\(\d+,\s\d+,\s\d+\)"],
     [Format.RGBA, "rgba\(\d+,\s\d+,\s\d+,\s0?\.\d+\)"]
-    # [Format.HEXCODE_ALPHA_HASH, "regex pattern match here"]
 
     ]
 
