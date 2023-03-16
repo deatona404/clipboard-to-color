@@ -37,7 +37,7 @@ class Format(Enum):
 formatsList = [
     [Format.HEXCODE, "([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"],
     [Format.RGB, "rgb\(\d+,\s\d+,\s\d+\)"],
-    # [Format.HEXCODE_ALPHA, "regex pattern match here"],
+    [Format.RGBA, "rgba\(\d+,\s\d+,\s\d+,\s0?\.\d+\)"]
     # [Format.HEXCODE_ALPHA_HASH, "regex pattern match here"]
 
     ]
@@ -110,6 +110,36 @@ def rgbToManagedColor(text) -> ManagedColor:
     return color
 
 
+'''
+    Returns a ManagedColor color constructed from a text string in the rgba
+    format.
+
+    ARGUMENTS: text (string in rgba form)
+
+    RETURNS: color (ManagedColor)
+'''
+def rgbaToManagedColor(text) -> ManagedColor:
+    color = ManagedColor("RGBA", "U8", "")
+    colorComponents = color.components()
+
+    splice = re.findall('\d+', text)
+    alphaval = re.findall("0?\.\d+", text)
+
+    red = int(splice[0])
+    green = int(splice[1])
+    blue = int(splice[2])
+    alpha = float(alphaval[0])
+
+
+    colorComponents[2] = red/255
+    colorComponents[1] = green/255
+    colorComponents[0] = blue/255
+    colorComponents[3] = alpha
+
+    color.setComponents(colorComponents)
+
+    return color
+
 
 # -----------------------------------------------------------------------------
 # Here are general functions that make it work
@@ -141,6 +171,8 @@ def textToColor(text) -> ManagedColor:
         return hexCodeToManagedColor(text)
     elif FORMAT == Format.RGB:
         return rgbToManagedColor(text)
+    elif FORMAT == Format.RGBA:
+        return rgbaToManagedColor(text)
 
     print("error converting filtered text to color")
     return None # error
@@ -202,3 +234,7 @@ else:
         # set to the foreground color
         Application.activeWindow().activeView().setForeGroundColor(color)
         print("changed color successfully") # TODO: delete this later; for debugging rn
+        
+        # we can't actually impact color opacity so change the brush opacity
+        # currentBrush = Preset(Application.activeWindow().activeView().currentBrushPreset())
+        Application.activeWindow().activeView().setPaintingOpacity(color.components()[3])
