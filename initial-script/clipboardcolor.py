@@ -7,8 +7,9 @@
 #
 # Supported color formats:
 #       Hexcode:                ffaa00
-#       Hexcode with #:         #ffaa00 (works with prev support)
+#       Hexcode with alpha:     #ffaa0011 
 #       RGB:                    rgb(239, 104, 255)
+#       RGBA:                   rgba(239, 104, 255, 0.3)
 
 
 from PyQt5.QtGui import (
