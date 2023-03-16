@@ -27,15 +27,17 @@ from enum import Enum
 # Enums for supported color formats:
 class Format(Enum):
     HEXCODE = 1
+    HEXCODE_ALPHA = 2
 
-    RGB = 2
-    RGBA = 3
+    RGB = 3
+    RGBA = 4
 
     HSL = 7
     HSV = 8
 
 formatsList = [
     [Format.HEXCODE, "([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"],
+    [Format.HEXCODE_ALPHA, "([A-Fa-f0-9]{8})$"],
     [Format.RGB, "rgb\(\d+,\s\d+,\s\d+\)"],
     [Format.RGBA, "rgba\(\d+,\s\d+,\s\d+,\s0?\.\d+\)"]
     # [Format.HEXCODE_ALPHA_HASH, "regex pattern match here"]
@@ -75,6 +77,32 @@ def hexCodeToManagedColor(text) -> ManagedColor:
     colorComponents[1] = green/255
     colorComponents[0] = blue/255
     colorComponents[3] = 1.0
+
+    color.setComponents(colorComponents)
+
+    return color
+
+'''
+    Returns a ManagedColor color constructed from a text string in the hexcode with alpha
+    format.
+
+    ARGUMENTS: text (string in hexcode alpha form)
+
+    RETURNS: color (ManagedColor)
+'''
+def hexCodeAlphaToManagedColor(text) -> ManagedColor:
+    color = ManagedColor("RGBA", "U8", "")
+    colorComponents = color.components()
+
+    red = int((text[0:2]), 16)
+    green = int((text[2:4]), 16)
+    blue = int((text[4:6]), 16)
+    alpha = int((text[6:8]), 16)
+
+    colorComponents[2] = red/255
+    colorComponents[1] = green/255
+    colorComponents[0] = blue/255
+    colorComponents[3] = alpha/255
 
     color.setComponents(colorComponents)
 
@@ -169,6 +197,8 @@ def textToColor(text) -> ManagedColor:
 
     if FORMAT == Format.HEXCODE:
         return hexCodeToManagedColor(text)
+    elif FORMAT == Format.HEXCODE_ALPHA:
+        return hexCodeAlphaToManagedColor(text)
     elif FORMAT == Format.RGB:
         return rgbToManagedColor(text)
     elif FORMAT == Format.RGBA:
@@ -199,7 +229,7 @@ def findFormat(text):
         currMatch = re.search(pattern, text, flags=re.IGNORECASE)
         # update our return value if this is the new minimum index
         if(currMatch):
-            if(not match or currMatch.span[0] < match.span[0]):
+            if(not match or currMatch.span()[0] <= match.span()[0]):
                 match = currMatch
                 global FORMAT
                 FORMAT = item[0] # return the format to the global var
