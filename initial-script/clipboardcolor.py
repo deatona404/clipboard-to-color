@@ -27,19 +27,16 @@ from enum import Enum
 # Enums for supported color formats:
 class Format(Enum):
     HEXCODE = 1
-    # HEXCODE_HASH = 2
-    # HEXCODE_ALPHA = 3
-    # HEXCODE_ALPHA_HASH = 4 dont include these...regex will match the first 6 anywya lmao
 
-    RGB = 5
-    RGBA = 6
+    RGB = 2
+    RGBA = 3
 
     HSL = 7
     HSV = 8
 
 formatsList = [
-    [Format.HEXCODE, "([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"]
-    # [Format.HEXCODE_HASH, "regex pattern match here"],
+    [Format.HEXCODE, "([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"],
+    [Format.RGB, "rgb\(\d+,\s\d+,\s\d+\)"],
     # [Format.HEXCODE_ALPHA, "regex pattern match here"],
     # [Format.HEXCODE_ALPHA_HASH, "regex pattern match here"]
 
@@ -49,11 +46,9 @@ formatsList = [
 FORMAT = -1
 
 
-# -----------------------------------------------------------------------------
-# Some function definitions for code cleanup
-# -----------------------------------------------------------------------------
-
-
+# --------------------------------------------------------------------------------------
+# Below are all the functions we use!!
+# --------------------------------------------------------------------------------------
 
 
 # -----------------------------------------------------------------------------
@@ -72,13 +67,13 @@ def hexCodeToManagedColor(text) -> ManagedColor:
     color = ManagedColor("RGBA", "U8", "")
     colorComponents = color.components()
 
-    print(int((text[0:2]), 16)/255)
-    print(int((text[2:4]), 16)/255)
-    print(int((text[4:6]), 16)/255)
+    red = int((text[0:2]), 16)
+    green = int((text[2:4]), 16)
+    blue = int((text[4:6]), 16)
 
-    colorComponents[2] = int((text[0:2]), 16)/255
-    colorComponents[1] = int((text[2:4]), 16)/255
-    colorComponents[0] = int((text[4:6]), 16)/255
+    colorComponents[2] = red/255
+    colorComponents[1] = green/255
+    colorComponents[0] = blue/255
     colorComponents[3] = 1.0
 
     color.setComponents(colorComponents)
@@ -87,10 +82,10 @@ def hexCodeToManagedColor(text) -> ManagedColor:
 
 
 '''
-    Returns a ManagedColor color constructed from a text string in the hexcode
+    Returns a ManagedColor color constructed from a text string in the rgb
     format.
 
-    ARGUMENTS: text (string in hexcode form)
+    ARGUMENTS: text (string in rgb form)
 
     RETURNS: color (ManagedColor)
 '''
@@ -98,13 +93,16 @@ def rgbToManagedColor(text) -> ManagedColor:
     color = ManagedColor("RGBA", "U8", "")
     colorComponents = color.components()
 
-    print(int((text[0:2]), 16)/255)
-    print(int((text[2:4]), 16)/255)
-    print(int((text[4:6]), 16)/255)
+    splice = re.findall('\d+', text)
 
-    colorComponents[2] = int((text[0:2]), 16)/255
-    colorComponents[1] = int((text[2:4]), 16)/255
-    colorComponents[0] = int((text[4:6]), 16)/255
+    red = int(splice[0])
+    green = int(splice[1])
+    blue = int(splice[2])
+
+
+    colorComponents[2] = red/255
+    colorComponents[1] = green/255
+    colorComponents[0] = blue/255
     colorComponents[3] = 1.0
 
     color.setComponents(colorComponents)
@@ -141,8 +139,8 @@ def textToColor(text) -> ManagedColor:
 
     if FORMAT == Format.HEXCODE:
         return hexCodeToManagedColor(text)
-    # elif FORMAT == Format.HEXCODE_HASH:
-    #     return hexCodeToManagedColor(text[1, len(text)])
+    elif FORMAT == Format.RGB:
+        return rgbToManagedColor(text)
 
     print("error converting filtered text to color")
     return None # error
@@ -177,9 +175,9 @@ def findFormat(text):
     return match
 
 
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
 # Main script
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
 
 
 # get clipboard text
@@ -203,3 +201,4 @@ else:
 
         # set to the foreground color
         Application.activeWindow().activeView().setForeGroundColor(color)
+        print("changed color successfully") # TODO: delete this later; for debugging rn
