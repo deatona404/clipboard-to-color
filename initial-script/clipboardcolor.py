@@ -6,8 +6,9 @@
 # in the clipboard text string. 
 #
 # Supported color formats:
-#       Hexcode: AAAAAA
-#       Hexcode with #: #AAAAAA
+#       Hexcode:                ffaa00
+#       Hexcode with #:         #ffaa00 (works with prev support)
+#       RGB:                    rgb(239, 104, 255)
 
 
 from PyQt5.QtGui import (
@@ -19,20 +20,40 @@ from PyQt5.QtGui import (
 
 from krita import *
 
-# -----------------------------------------------------------------------------
-# Some function definitions for code cleanup
-# -----------------------------------------------------------------------------
+import re
 
-'''
-    Returns a text string representing the most recent item in the system 
-    clipboard.
+from enum import Enum
 
-    RETURNS: text (string)
-'''
-def getClipboardText():
-    clipboard = QGuiApplication.clipboard()
-    text = clipboard.text()
-    return text
+# Enums for supported color formats:
+class Format(Enum):
+    HEXCODE = 1
+
+    RGB = 2
+    RGBA = 3
+
+    HSL = 7
+    HSV = 8
+
+formatsList = [
+    [Format.HEXCODE, "([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"],
+    [Format.RGB, "rgb\(\d+,\s\d+,\s\d+\)"],
+    [Format.RGBA, "rgba\(\d+,\s\d+,\s\d+,\s0?\.\d+\)"]
+    # [Format.HEXCODE_ALPHA_HASH, "regex pattern match here"]
+
+    ]
+
+# global variable for format of this execution
+FORMAT = -1
+
+
+# --------------------------------------------------------------------------------------
+# Below are all the functions we use!!
+# --------------------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+# Here are the specific format helper functions (all should return ManagedColor)
+# -----------------------------------------------------------------------------
 
 '''
     Returns a ManagedColor color constructed from a text string in the hexcode
@@ -46,18 +67,96 @@ def hexCodeToManagedColor(text) -> ManagedColor:
     color = ManagedColor("RGBA", "U8", "")
     colorComponents = color.components()
 
-    print(int((text[0:2]), 16)/255)
-    print(int((text[2:4]), 16)/255)
-    print(int((text[4:6]), 16)/255)
+    red = int((text[0:2]), 16)
+    green = int((text[2:4]), 16)
+    blue = int((text[4:6]), 16)
 
-    colorComponents[2] = int((text[0:2]), 16)/255
-    colorComponents[1] = int((text[2:4]), 16)/255
-    colorComponents[0] = int((text[4:6]), 16)/255
+    colorComponents[2] = red/255
+    colorComponents[1] = green/255
+    colorComponents[0] = blue/255
     colorComponents[3] = 1.0
 
     color.setComponents(colorComponents)
 
     return color
+
+
+'''
+    Returns a ManagedColor color constructed from a text string in the rgb
+    format.
+
+    ARGUMENTS: text (string in rgb form)
+
+    RETURNS: color (ManagedColor)
+'''
+def rgbToManagedColor(text) -> ManagedColor:
+    color = ManagedColor("RGBA", "U8", "")
+    colorComponents = color.components()
+
+    splice = re.findall('\d+', text)
+
+    red = int(splice[0])
+    green = int(splice[1])
+    blue = int(splice[2])
+
+
+    colorComponents[2] = red/255
+    colorComponents[1] = green/255
+    colorComponents[0] = blue/255
+    colorComponents[3] = 1.0
+
+    color.setComponents(colorComponents)
+
+    return color
+
+
+'''
+    Returns a ManagedColor color constructed from a text string in the rgba
+    format.
+
+    ARGUMENTS: text (string in rgba form)
+
+    RETURNS: color (ManagedColor)
+'''
+def rgbaToManagedColor(text) -> ManagedColor:
+    color = ManagedColor("RGBA", "U8", "")
+    colorComponents = color.components()
+
+    splice = re.findall('\d+', text)
+    alphaval = re.findall("0?\.\d+", text)
+
+    red = int(splice[0])
+    green = int(splice[1])
+    blue = int(splice[2])
+    alpha = float(alphaval[0])
+
+
+    colorComponents[2] = red/255
+    colorComponents[1] = green/255
+    colorComponents[0] = blue/255
+    colorComponents[3] = alpha
+
+    color.setComponents(colorComponents)
+
+    return color
+
+
+# -----------------------------------------------------------------------------
+# Here are general functions that make it work
+# -----------------------------------------------------------------------------
+
+'''
+    Returns a text string representing the most recent item in the system 
+    clipboard.
+
+    RETURNS: text (string)
+'''
+def getClipboardText():
+    clipboard = QGuiApplication.clipboard()
+    text = clipboard.text()
+    return text
+
+
 
 '''
     Returns a ManagedColor color based on the input text string.
@@ -67,25 +166,75 @@ def hexCodeToManagedColor(text) -> ManagedColor:
     RETURNS: color (ManagedColor)
 '''
 def textToColor(text) -> ManagedColor:
-    # TODO: there will be an if-stack here for rgb and hsl and other conversions
-    # but for now it will just call hexcode
-    return hexCodeToManagedColor(text)
+
+    if FORMAT == Format.HEXCODE:
+        return hexCodeToManagedColor(text)
+    elif FORMAT == Format.RGB:
+        return rgbToManagedColor(text)
+    elif FORMAT == Format.RGBA:
+        return rgbaToManagedColor(text)
+
+    print("error converting filtered text to color")
+    return None # error
 
 
-# -----------------------------------------------------------------------------
+
+'''
+    Returns a Match object relating to the first valid color format found
+    in the input text string.
+
+    ARGUMENTS: text (string hopefully with a valid color format)
+
+    RETURNS: match (Match)
+             FORMAT global variable is also set accordingly
+'''
+def findFormat(text):
+    match = None
+
+    # iterate through every supported format and try to find a match
+    # then, our match is the currMatch with the lowest index found
+    for item in formatsList:
+        # perform the search
+        pattern = item[1]
+        currMatch = re.search(pattern, text, flags=re.IGNORECASE)
+        # update our return value if this is the new minimum index
+        if(currMatch):
+            if(not match or currMatch.span[0] < match.span[0]):
+                match = currMatch
+                global FORMAT
+                FORMAT = item[0] # return the format to the global var
+    
+    return match
+
+
+# --------------------------------------------------------------------------------------
 # Main script
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
 
 
-# get clipboard color
+# get clipboard text
 
 text = getClipboardText()
 
+# find format
 
-# convert to ManagedColor color
+match = findFormat(text)
+if match == None:
+    print("no match found in clipboard text string; do nothing")
+else:
+    lowerBound = int(match.span()[0])
+    upperBound = int(match.span()[1])
+    filteredText = text[lowerBound:upperBound]
 
-color = textToColor(text)
+    # convert to ManagedColor color
+    color = textToColor(filteredText)
+    
+    if(color): # if it didnt error, then set it!
 
-
-# set to the foreground color
-Application.activeWindow().activeView().setForeGroundColor(color)
+        # set to the foreground color
+        Application.activeWindow().activeView().setForeGroundColor(color)
+        print("changed color successfully") # TODO: delete this later; for debugging rn
+        
+        # we can't actually impact color opacity so change the brush opacity
+        # currentBrush = Preset(Application.activeWindow().activeView().currentBrushPreset())
+        Application.activeWindow().activeView().setPaintingOpacity(color.components()[3])
