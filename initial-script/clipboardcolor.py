@@ -276,5 +276,4 @@ else:
         print("changed color successfully") # TODO: delete this later; for debugging rn
         
         # we can't actually impact color opacity so change the brush opacity
-        # currentBrush = Preset(Application.activeWindow().activeView().currentBrushPreset())
         Application.activeWindow().activeView().setPaintingOpacity(color.components()[3])
