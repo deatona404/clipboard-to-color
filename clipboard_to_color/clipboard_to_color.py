@@ -1,3 +1,8 @@
+# from krita import *
+# import functools
+# from .clipboard_color_helpers import * # get all helper funcs
+
+
 # This script converts the current clipboard text to the foreground color
 # in Krita. If the clipboard text is formatted incorrectly, it will not
 # succeed.
@@ -251,29 +256,44 @@ def findFormat(text):
 # Main script
 # --------------------------------------------------------------------------------------
 
+# Performs the shortcut action, and makes the fg color the copied text.
+def copyToForegroundColor(self):
+    # get clipboard text
 
-# get clipboard text
+    text = getClipboardText()
 
-text = getClipboardText()
+    # find format
 
-# find format
+    match = findFormat(text)
+    if match == None:
+        print("no match found in clipboard text string; do nothing")
+    else:
+        lowerBound = int(match.span()[0])
+        upperBound = int(match.span()[1])
+        filteredText = text[lowerBound:upperBound]
 
-match = findFormat(text)
-if match == None:
-    print("no match found in clipboard text string; do nothing")
-else:
-    lowerBound = int(match.span()[0])
-    upperBound = int(match.span()[1])
-    filteredText = text[lowerBound:upperBound]
-
-    # convert to ManagedColor color
-    color = textToColor(filteredText)
-    
-    if(color): # if it didnt error, then set it!
-
-        # set to the foreground color
-        Application.activeWindow().activeView().setForeGroundColor(color)
-        print("changed color successfully") # TODO: delete this later; for debugging rn
+        # convert to ManagedColor color
+        color = textToColor(filteredText)
         
-        # we can't actually impact color opacity so change the brush opacity
-        Application.activeWindow().activeView().setPaintingOpacity(color.components()[3])
+        if(color): # if it didnt error, then set it!
+
+            # set to the foreground color
+            Application.activeWindow().activeView().setForeGroundColor(color)
+            print("changed color successfully") # TODO: delete this later; for debugging rn
+            
+            # we can't actually impact color opacity so change the brush opacity
+            Application.activeWindow().activeView().setPaintingOpacity(color.components()[3])
+
+class Clipboard2Color(Extension):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    # Krita.instance() exists, so do any setup work
+    def setup(self):
+        pass
+
+    # called after setup(self)
+    def createActions(self, window):
+        self.action = window.createAction("ClipboardToColor", "Clipboard to Color")
+        self.action.triggered.connect(copyToForegroundColor)
