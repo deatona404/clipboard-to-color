@@ -19,11 +19,13 @@ RGBA:            |       ``rgba(239, 104, 255, 0.3)``
 <!-- ### Recommended Method:
 ### Manual Method: -->
 
-Put the .action file (``ClipboardToColor.action``) in KRITA/actions 
+Go to the button that says "<> Code" near the top of the page. Click it, then click ``Download ZIP``.
 
-Put everything else (the ``clipboard_to_color`` folder) in KRITA/pykrita
+Put the .action file (``actions/ClipboardToColor.action``) in KRITA/actions 
 
-where KRITA is the krita's resource folder.
+Put everything else (the ``./clipboard_to_color`` folder) in KRITA/pykrita
+
+where KRITA is Krita's Resource Folder.
 
 ## Usage
 
