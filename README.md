@@ -23,9 +23,11 @@ Go to the button that says "<> Code" near the top of the page. Click it, then cl
 
 Put the .action file (``actions/ClipboardToColor.action``) in KRITA/actions 
 
-Put everything else (the ``./clipboard_to_color`` folder) in KRITA/pykrita
+Put everything else (the ``clipboard_to_color`` folder, and the ``clipboard_to_color.desktop`` file) in KRITA/pykrita
 
 where KRITA is Krita's Resource Folder.
+
+If you are having trouble with these instructions, please see the official Krita manual page for locating the Resource Folder and installing Python plugins [here](https://docs.krita.org/en/user_manual/python_scripting/install_custom_python_plugin.html).
 
 ## Usage
 
@@ -41,7 +43,7 @@ It should be your new foreground color!
 
 ## Inspiration
 
-I recently installed Microsoft PowerToys and made frequent use of the ColorPicker tool it adds to colorpick various things on my screen and not in Krita. Unfortunately, the only method I could find to get that hexcode into Krita for work was opening up the color palette and manually pasting it in. Obviously, that impedes workflow, so I threw a script together and made it a plugin.
+I recently installed [Microsoft PowerToys](https://github.com/microsoft/PowerToys) and made frequent use of the Color Picker tool it adds to colorpick various things on my screen and not in Krita. Unfortunately, the only method I could find to get that hexcode into Krita for work was opening up the color palette and manually pasting it in. Obviously, that impedes workflow, so I threw a script together and made it a plugin.
 
 
 ## Limitations

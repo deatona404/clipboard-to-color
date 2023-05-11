@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=clipboard_to_color
+X-Python-2-Compatible=false
+X-Krita-Manual=Manual.html
+Name=Clipboard to Color
+Comment=Adds a keybind to convert your copied text to a color.
