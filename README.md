@@ -19,13 +19,16 @@ RGBA:            |       ``rgba(239, 104, 255, 0.3)``
 <!-- ### Recommended Method:
 ### Manual Method: -->
 
-1. Go to the colored button that says ``Code`` near the top-right of the page. Click it, then click ``Download ZIP``.
+1. Go to the colored button that says ``Code`` near the top-right of the page. Click it, then click ``Download ZIP``. Extract the ZIP archive.
 
 2. Open Krita. Go to Settings > Manage Resources > Open Resource Folder
 
-3. Put the .action file (``actions/ClipboardToColor.action``) in the /actions folder 
-
-4. Put the ``clipboard_to_color`` folder and the ``clipboard_to_color.desktop`` file in the /pykrita folder
+3. Put the .action file (``actions/ClipboardToColor.action``) in the *actions* folder 
+    * if the *actions* folder does not exist, create one
+4. Put the ``clipboard_to_color`` folder and the ``clipboard_to_color.desktop`` file in the *pykrita* folder 
+    * if the *pykrita* folder does not exist, create one
+5. Restart Krita. Then, go to Settings > Configure Krita > Python Plugin Manager. Enable *Clipboard to Color*. 
+6. Restart Krita again.
 
 If you are having trouble with these instructions, please see the official Krita manual page for locating the Resource Folder and installing Python plugins [here](https://docs.krita.org/en/user_manual/python_scripting/install_custom_python_plugin.html).
 
@@ -33,8 +36,8 @@ If you are having trouble with these instructions, please see the official Krita
 
 After enabling this plugin, restart Krita. 
 Then, go to the 
-``Settings / Configure Krita / Keyboard Shortcuts: Scripts / My Scripts``
-section and look for the keyboard shortcut labelled ``Clipboard to Color``.
+``Settings > Configure Krita > Keyboard Shortcuts: Scripts / My Scripts``
+section and look for the keyboard shortcut labelled either ``Clipboard to Color`` or ``Convert clipboard text to Foreground Color``.
 
 Then, assign a keyboard binding to the shortcut.
 
