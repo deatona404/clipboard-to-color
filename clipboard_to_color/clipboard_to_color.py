@@ -54,8 +54,8 @@ class Format(Enum):
 formatsList = [
     [Format.HEXCODE, "([A-Fa-f0-9]{6})"],
     [Format.HEXCODE_ALPHA, "([A-Fa-f0-9]{8})"],
-    [Format.RGB, "rgb\(\d+,\s\d+,\s\d+\)"],
-    [Format.RGBA, "rgba\(\d+,\s\d+,\s\d+,\s0?\.\d+\)"]
+    [Format.RGB, "rgb\(\s?\d+\s?,\s?\d+\s?,\s?\d+\s?\)"],
+    [Format.RGBA, "rgba\(\s?\d+\s?,\s?\d+\s?,\s?\d+\s?,\s0?\.\d+\s?\)"]
 
     ]
 
