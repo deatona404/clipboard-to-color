@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ActionCollection version="2" name="Scripts">
     <Actions category="Scripts">
-        <text>My Scripts</text>
+        <text>Clipboard to Color</text>
 
-        <Action name="clipboard_to_color">
+        <Action name="ClipboardToColor">
         <icon></icon>
         <text>Convert clipboard text to Foreground Color</text>
         <whatsThis>Scans your clipboard for text matching hexcode or rgb() format, then sets your Foreground Color to it.</whatsThis>

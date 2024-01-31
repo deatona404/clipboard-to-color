@@ -295,5 +295,5 @@ class Clipboard2Color(Extension):
 
     # called after setup(self)
     def createActions(self, window):
-        self.action = window.createAction("ClipboardToColor", "Clipboard to Color")
+        self.action = window.createAction("ClipboardToColor", "Convert clipboard text to Foreground Color")
         self.action.triggered.connect(copyToForegroundColor)
